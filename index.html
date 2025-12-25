@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مع إحسان | مساحة للكتابة الهادئة</title>
+    
+    <!-- الخطوط -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- أيقونات Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- تخصيصات Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        amiri: ['Amiri', 'serif'],
+                    },
+                    // تعريف حركة نبض القلب المخصصة
+                    keyframes: {
+                        heartbeat: {
+                            '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+                            '50%': { transform: 'scale(1.05)', opacity: '0.7' },
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'heartbeat': 'heartbeat 2s ease-in-out infinite', // استخدام الحركة الجديدة
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* أنماط مخصصة للحركات الناعمة */
+        body { transition: background-color 1s ease, color 1s ease; }
+        .glass-card { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); transition: all 0.5s ease; }
+        .fade-in { animation: fadeIn 0.8s ease-in-out forwards; }
+        .slide-up { animation: slideUp 0.6s ease-out forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* إخفاء شريط التمرير */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 10px; }
+        
+        .hidden-visually { opacity: 0; pointer-events: none; height: 0; overflow: hidden; margin: 0; }
+        
+        /* تدرجات الخلفية */
+        .bg-morning { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 50%, #eff6ff 100%); }
+        .bg-cosmic { background: radial-gradient(ellipse at top, #0f172a 0%, #000000 100%); }
+    </style>
+</head>
+<body class="bg-morning text-slate-800 font-cairo min-h-screen overflow-x-hidden selection:bg-rose-200 selection:text-rose-900">
+
+    <!-- خلفية جمالية -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div id="orb1" class="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse-slow bg-rose-200 transition-colors duration-1000"></div>
+        <div id="orb2" class="absolute top-40 -left-20 w-72 h-72 rounded-full blur-3xl opacity-30 animate-pulse-slow delay-700 bg-orange-200 transition-colors duration-1000"></div>
+    </div>
+
+    <!-- شريط التنقل -->
+    <nav id="navbar" class="absolute top-0 inset-x-0 z-50 p-6 flex justify-between items-center transition-all duration-500">
+        <button id="themeToggle" class="p-3 rounded-full backdrop-blur-md border shadow-sm transition-all hover:scale-105 active:scale-95 bg-white/70 border-white/50 text-slate-600 hover:bg-white">
+            <i data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+
+        <button id="historyBtn" class="flex items-center gap-2 px-5 py-2.5 rounded-full backdrop-blur-md border shadow-sm transition-all hover:scale-105 active:scale-95 font-bold text-xs bg-white/70 border-white/50 text-slate-600 hover:bg-white">
+            <span>السجل السابق</span>
+            <i data-lucide="history" class="w-4 h-4"></i>
+        </button>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="relative z-10 flex flex-col items-center px-4 py-12 md:py-16 pt-24 max-w-4xl mx-auto w-full">
+        
+        <!-- الهيدر -->
+        <header id="mainHeader" class="mb-12 text-center space-y-6 transition-all duration-700 fade-in">
+          
+            
+            <div class="flex justify-center min-h-[80px]">
+                <!-- صورة الشعار -->
+                <!-- 
+                    تحكم في الحجم من هنا:
+                    h-40 : الارتفاع في الموبايل (كلما زاد الرقم كبرت الصورة)
+                    md:h-56 : الارتفاع في الكمبيوتر والشاشات الكبيرة
+                    يمكنك تجربة: h-32, h-48, h-64, h-80
+                -->
+                <img id="logoImg" src="./logo1.png" alt="مع إحسان" class="h-40 md:h-64 object-contain drop-shadow-md hover:scale-105 transition-transform duration-500">
+                <!-- نص بديل في حال عدم وجود الصورة -->
+                <h1 id="logoText" class="hidden text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-rose-600 py-6 px-2 leading-[1.5]">مع إحسان</h1>
+            </div>
+            
+            <p class="text-sm md:text-base font-light tracking-widest opacity-70">! هنا .. تُكتب الفكرة بأسلوب إحسان</p>
+        </header>
+
+        <!-- منطقة اختيار الأنماط -->
+        <div id="stylesGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 w-full mb-8 transition-all duration-500 slide-up" style="animation-delay: 0.1s;">
+            <!-- سيتم توليد البطاقات هنا بواسطة JS -->
+        </div>
+
+        <!-- منطقة النص المولد (النتيجة) -->
+        <div id="outputContainer" class="hidden w-full mb-8 slide-up">
+            <div id="outputCard" class="relative w-full rounded-3xl p-8 md:p-12 shadow-2xl glass-card bg-white/60 border-white/60">
+                <div class="flex justify-end gap-3 mb-8 absolute top-6 left-6 z-50">
+                    <button id="regenerateBtn" class="p-2 rounded-full hover:bg-black/5 opacity-40 hover:opacity-100 transition-all" title="إعادة صياغة"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                    <button id="copyBtn" class="p-2 rounded-full hover:bg-black/5 opacity-40 hover:opacity-100 transition-all" title="نسخ"><i data-lucide="copy" class="w-4 h-4"></i></button>
+                    <button id="distractionToggle" class="p-2 rounded-full hover:bg-black/5 opacity-40 hover:opacity-100 transition-all" title="وضع التركيز"><i data-lucide="eye" class="w-5 h-5"></i></button>
+                </div>
+                <div id="outputText" class="text-right min-h-[150px] flex flex-col justify-center whitespace-pre-line leading-loose text-lg md:text-2xl font-amiri drop-shadow-sm"></div>
+                
+                <div class="mt-12 flex items-center justify-center gap-4 opacity-40">
+                    <div class="h-[1px] w-12 bg-current"></div>
+                    <span id="outputSignature" class="text-xs font-cairo tracking-widest uppercase"></span>
+                    <div class="h-[1px] w-12 bg-current"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- منطقة الإدخال -->
+        <div id="inputContainer" class="w-full space-y-8 transition-all duration-700 slide-up" style="animation-delay: 0.2s;">
+            <div id="inputWrapper" class="relative rounded-3xl p-1 transition-all duration-500">
+                <div class="relative z-10 rounded-2xl overflow-hidden glass-card bg-white/40 border border-white/60 shadow-xl">
+                    <textarea id="userInput" placeholder="فكرة تمرّ في بالك الآن…" class="w-full h-24 p-6 text-xl bg-transparent resize-none focus:outline-none placeholder:opacity-40 font-amiri leading-loose text-right placeholder:text-slate-400"></textarea>
+                    
+                    <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end flex-row-reverse">
+                        <span class="text-[10px] opacity-40 tracking-wider font-light">أسلوب الكتابة: <span id="currentStyleName" class="font-bold opacity-80 text-pink-500">تأملي</span></span>
+                        
+                        <button id="randomIdeaBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium opacity-50 hover:opacity-100 hover:bg-black/5 transition-all">
+                            <i data-lucide="pen-tool" class="w-3 h-3"></i>
+                            <span>اقترح فكرة</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- زر التوليد -->
+            <div class="flex justify-center">
+                <button id="generateBtn" class="group relative px-10 py-4 rounded-full overflow-hidden shadow-lg shadow-pink-500/30 transition-transform hover:scale-105 active:scale-95">
+                    <div class="absolute inset-0 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-500 bg-[length:200%_auto] animate-gradient"></div>
+                    <span id="generateBtnText" class="relative z-10 text-white font-bold tracking-wide flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        دع النص يتشكّل
+                    </span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- نافذة السجل (History Sidebar) -->
+    <div id="historyModal" class="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm hidden flex justify-end transition-opacity duration-300 opacity-0">
+        <div id="historyContent" class="w-full max-w-md h-full p-8 shadow-2xl border-l bg-[#FDFBF7]/95 border-white transform translate-x-full transition-transform duration-300 flex flex-col">
+            <div class="flex justify-between items-center mb-10 shrink-0">
+                <h2 class="text-2xl font-bold font-cairo">السجل السابق</h2>
+                <button id="closeHistory" class="p-2 hover:bg-black/5 rounded-full transition-all"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div id="historyList" class="space-y-4 overflow-y-auto flex-1 pr-2">
+                <!-- عناصر السجل -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- 1. التكوين والبيانات ---
+        
+        // مصفوفة مفاتيح API: الجديد أولاً، ثم القديم كاحتياطي
+        const API_KEYS = [
+            "AIzaSyDAZNcBwGZJuRUGQLj-orOCvyBFLpC020E", // المفتاح الأساسي (الجديد)
+            "AIzaSyATnknOBSSf7TlUWywBjmj2OzsOsuVeWtQ"  // المفتاح الاحتياطي
+        ];
+        
+        // المتغير لتخزين الموديلات المتاحة (كاش)
+        let cachedModels = null;
+
+        // دالة ذكية لجلب الموديلات المتاحة وترتيبها
+        const fetchAvailableModels = async () => {
+            // قائمة احتياطية قوية تبدأ بالأكثر استقراراً
+            const fallbackModels = ["gemini-1.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-pro"];
+
+            if (cachedModels) return cachedModels;
+
+            // محاولة جلب الموديلات باستخدام أي مفتاح يعمل
+            for (const key of API_KEYS) {
+                try {
+                    console.log(`جاري استكشاف الموديلات باستخدام المفتاح: ...${key.slice(-4)}`);
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+                    
+                    if (!response.ok) continue; // جرب المفتاح التالي إذا فشل هذا
+
+                    const data = await response.json();
+                    
+                    if (data.models) {
+                        const supportedModels = data.models
+                            .filter(m => 
+                                m.supportedGenerationMethods?.includes("generateContent") && 
+                                m.name.includes("gemini") &&
+                                !m.name.toLowerCase().includes("tts") &&      
+                                !m.name.toLowerCase().includes("vision") &&   
+                                !m.name.toLowerCase().includes("embedding") && 
+                                !m.name.toLowerCase().includes("imagen")       
+                            )
+                            .map(m => m.name.replace("models/", ""));
+
+                        // ترتيب ذكي: الأولوية لـ Flash المستقر
+                        supportedModels.sort((a, b) => {
+                            const is15FlashA = a.includes('gemini-1.5-flash') && !a.includes('8b');
+                            const is15FlashB = b.includes('gemini-1.5-flash') && !b.includes('8b');
+                            
+                            if (is15FlashA && !is15FlashB) return -1;
+                            if (!is15FlashA && is15FlashB) return 1;
+
+                            const is20FlashA = a.includes('gemini-2.0-flash');
+                            const is20FlashB = b.includes('gemini-2.0-flash');
+                            
+                            if (is20FlashA && !is20FlashB) return -1;
+                            if (!is20FlashA && is20FlashB) return 1;
+
+                            const getVer = (s) => parseFloat(s.match(/(\d+\.\d+)/)?.[0] || 0);
+                            return getVer(b) - getVer(a);
+                        });
+
+                        console.log("تم ترتيب الموديلات:", supportedModels);
+                        cachedModels = supportedModels;
+                        return supportedModels;
+                    }
+                } catch (error) {
+                    console.warn("فشل الاتصال بالموديلات مع مفتاح معين، جاري المحاولة مع التالي...");
+                }
+            }
+            
+            console.warn("فشل جميع المفاتيح في جلب القائمة، استخدام القائمة الاحتياطية.");
+            return fallbackModels;
+        };
+
+        const STYLES = [
+            { id: 'reflective_conscious_prose', name: 'تأملي', desc: 'مراقبة وتحليل هادئ', icon: 'sparkles' },
+            { id: 'nostalgia_descriptive_prose', name: 'وصفي', desc: 'تصوير لغوي واستحضار الأثر', icon: 'feather', realId: 'nostalgic_descriptive_prose' },
+            { id: 'existential_silent_prose', name: 'صامت', desc: 'حذف وإيحاء وقلة تصريح', icon: 'moon' },
+            { id: 'reflective_mature_sorrow_prose', name: 'تحليلي', desc: 'تفكيك المعنى بلا انفعال', icon: 'wind' },
+            { id: 'silent_affection_prose_poetry', name: 'وجداني', desc: 'إحساس دون تصريح', icon: 'heart' },
+            { id: 'existential_exhaustion_prose_poetry', name: 'اختزال', desc: 'اختزال واقتصاد لغوي', icon: 'anchor' }, // تم التغيير هنا
+            { id: 'quiet_faith_prose', name: 'طمأنينة', desc: 'تسليم داخلي هادئ', icon: 'cloud' },
+            { id: 'calm_boundary_prose', name: 'حدّي', desc: 'إغلاق المعنى بحد لغوي', icon: 'shield' },
+        ];
+
+        // بيانات المحركات (JSON Engines)
+        const PROMPT_ENGINES_DATA = {
+            reflective_conscious_prose: { style_name: "النثر التأملي الواعي", author_persona: { identity: "إحسان", writing_intent: "ملاحظة فكرة تمرّ في الداخل" }, thinking_mode: { pre_sentence_rules: ["توقفي قبل كل جملة"] }, lexicon: { preferred_words: ["الصمت", "الوعي"], forbidden_words: ["أحب", "أكره"] }, output_constraints: { word_count: { min: 90, max: 110 } } },
+            nostalgic_descriptive_prose: { style_name: "النثر الوصفي الحنيني", author_persona: { identity: "إحسان", writing_intent: "تسجيل أثر ذكرى" }, thinking_mode: { pre_sentence_rules: ["لا تكتبي الحدث نفسه"] }, lexicon: { preferred_words: ["الذاكرة", "الغبار"], forbidden_words: ["شوق"] }, output_constraints: { word_count: { min: 70, max: 90 } } },
+            existential_silent_prose: { style_name: "النثر الوجودي الصامت", author_persona: { identity: "إحسان", writing_intent: "تسجيل لحظة صمت" }, thinking_mode: { pre_sentence_rules: ["لا تبرري سبب الصمت"] }, lexicon: { preferred_words: ["الانسحاب", "الخفاء"], forbidden_words: ["أصرخ"] }, output_constraints: { word_count: { min: 70, max: 100 } } },
+            reflective_mature_sorrow_prose: { style_name: "النثر التأملي الحزين", author_persona: { identity: "إحسان", writing_intent: "تسجيل لحظة فهم هادئة" }, thinking_mode: { pre_sentence_rules: ["لا تكتبي عن لحظة الفقد"] }, lexicon: { preferred_words: ["الفقد", "الخيبة"], forbidden_words: ["جرح"] }, output_constraints: { word_count: { min: 100, max: 130 } } },
+            silent_affection_prose_poetry: { style_name: "شعر النثر الوجداني", author_persona: { identity: "إحسان", writing_intent: "شعور قرب داخلي" }, thinking_mode: { pre_sentence_rules: ["لا تقولي أحبك"] }, lexicon: { preferred_words: ["القرب", "الهدوء"], forbidden_words: ["عشق"] }, output_constraints: { word_count: { min: 60, max: 80 } } },
+            existential_exhaustion_prose_poetry: { style_name: "شعر النثر المكثف", author_persona: { identity: "إحسان", writing_intent: "تفريغ حالة إنهاك" }, thinking_mode: { pre_sentence_rules: ["اختصري الكلمة"] }, lexicon: { preferred_words: ["الثقل", "الفراغ"], forbidden_words: ["ألم"] }, output_constraints: { word_count: { min: 40, max: 70 } } },
+            quiet_faith_prose: { style_name: "النثر الإيماني الهادئ", author_persona: { identity: "إحسان", writing_intent: "طمأنينة داخلية" }, thinking_mode: { pre_sentence_rules: ["لا تأمري القارئ"] }, lexicon: { preferred_words: ["التوكل", "الرضا"], forbidden_words: ["عقاب"] }, output_constraints: { word_count: { min: 90, max: 110 } } },
+            calm_boundary_prose: { style_name: "النثر الحدّي", author_persona: { identity: "إحسان", writing_intent: "إعلان حدّ بهدوء" }, thinking_mode: { pre_sentence_rules: ["لا تشرحي القرار"] }, lexicon: { preferred_words: ["الحد", "القرار"], forbidden_words: ["خذلتني"] }, output_constraints: { word_count: { min: 70, max: 90 } } }
+        };
+
+        const RANDOM_TOPICS = {
+            reflective_conscious_prose: ["التوقف دون سبب واضح", "الإحساس بالمسافة", "مراقبة النفس في لحظة هدوء"],
+            nostalgic_descriptive_prose: ["مكان لم أعد أزوره", "ضوء قديم في ذاكرة بعيدة", "صوت بقي بعد الغياب"],
+            existential_silent_prose: ["الرغبة في إغلاق الهاتف للأبد", "الجلوس وحيداً وسط الضجيج", "الصمت كإجابة نهائية"],
+            reflective_mature_sorrow_prose: ["إدراك متأخر لحقيقة شخص", "الأشياء التي تغيرت بهدوء", "قبول النهاية"],
+            silent_affection_prose_poetry: ["حضور يبعث الطمأنينة", "قرب لا يُقال", "شخص لا أحتاج أن أطلبه"],
+            existential_exhaustion_prose_poetry: ["ثقل الجفون والروح", "الركض بلا وصول", "انطفاء الرغبة في الكلام"],
+            quiet_faith_prose: ["ترك الأمور للمدبر", "نهاية المحاولات البشرية", "الرضا بما كُتب"],
+            calm_boundary_prose: ["قول لا بصوت هادئ", "الانسحاب من مكان لا يشبهني", "حماية المساحة الخاصة"]
+        };
+
+        // --- 2. الحالة العامة (State) ---
+        let currentTheme = 'morning';
+        let currentStyle = STYLES[0];
+        let isGenerating = false;
+        let isDistractionFree = false;
+        let historyData = JSON.parse(localStorage.getItem('ihssane_history') || '[]');
+
+        // --- 3. تهيئة العناصر DOM ---
+        const themeToggle = document.getElementById('themeToggle');
+        const historyBtn = document.getElementById('historyBtn');
+        const historyModal = document.getElementById('historyModal');
+        const historyContent = document.getElementById('historyContent');
+        const closeHistory = document.getElementById('closeHistory');
+        const historyList = document.getElementById('historyList');
+        const stylesGrid = document.getElementById('stylesGrid');
+        const userInput = document.getElementById('userInput');
+        const randomIdeaBtn = document.getElementById('randomIdeaBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const generateBtnText = document.getElementById('generateBtnText');
+        const outputContainer = document.getElementById('outputContainer');
+        const outputText = document.getElementById('outputText');
+        const outputSignature = document.getElementById('outputSignature');
+        const copyBtn = document.getElementById('copyBtn');
+        const regenerateBtn = document.getElementById('regenerateBtn');
+        const distractionToggle = document.getElementById('distractionToggle');
+        const currentStyleNameSpan = document.getElementById('currentStyleName');
+        const logoImg = document.getElementById('logoImg');
+        const logoText = document.getElementById('logoText');
+
+        lucide.createIcons();
+
+        logoImg.onerror = function() {
+            logoImg.classList.add('hidden');
+            logoText.classList.remove('hidden');
+        };
+
+        // --- 4. الوظائف المنطقية ---
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'morning' ? 'cosmic' : 'morning';
+            const body = document.body;
+            const navbarBtns = document.querySelectorAll('#navbar button');
+            const historyPanel = document.getElementById('historyContent');
+            const glassCards = document.querySelectorAll('.glass-card');
+            
+            if (currentTheme === 'morning') {
+                body.className = "bg-morning text-slate-800 font-cairo min-h-screen overflow-x-hidden selection:bg-rose-200 selection:text-rose-900";
+                if(logoImg) logoImg.style.filter = "none";
+                navbarBtns.forEach(btn => btn.className = btn.className.replace('bg-black/40 border-white/10 text-slate-300 hover:bg-white/10', 'bg-white/70 border-white/50 text-slate-600 hover:bg-white'));
+                historyPanel.className = historyPanel.className.replace('bg-[#0F172A]/95 border-white/10', 'bg-[#FDFBF7]/95 border-white');
+                // glassCards update is handled by renderStyles now
+                userInput.className = userInput.className.replace('placeholder:text-slate-500', 'placeholder:text-slate-400');
+            } else {
+                body.className = "bg-cosmic text-slate-200 font-cairo min-h-screen overflow-x-hidden selection:bg-rose-900 selection:text-rose-200";
+                if(logoImg) logoImg.style.filter = "brightness(0) invert(1)";
+                navbarBtns.forEach(btn => btn.className = btn.className.replace('bg-white/70 border-white/50 text-slate-600 hover:bg-white', 'bg-black/40 border-white/10 text-slate-300 hover:bg-white/10'));
+                historyPanel.className = historyPanel.className.replace('bg-[#FDFBF7]/95 border-white', 'bg-[#0F172A]/95 border-white/10');
+                // glassCards update is handled by renderStyles now
+                userInput.className = userInput.className.replace('placeholder:text-slate-400', 'placeholder:text-slate-500');
+            }
+            
+            themeToggle.innerHTML = `<i data-lucide="${currentTheme === 'morning' ? 'moon' : 'sun'}" class="w-5 h-5"></i>`;
+            lucide.createIcons();
+            
+            // Re-render components to apply new theme colors correctly
+            renderHistory();
+            renderStyles();
+        }
+
+        function renderStyles() {
+            stylesGrid.innerHTML = '';
+            STYLES.forEach(style => {
+                const btn = document.createElement('button');
+                const isSelected = currentStyle.id === style.id;
+                
+                // Base class: added border-2 to ensure consistent sizing
+                let baseClass = "relative p-4 rounded-2xl text-center transition-all duration-500 group overflow-hidden border-2 ";
+                
+                // Active: Filled gradient, transparent border
+                let activeClass = "bg-gradient-to-br from-rose-400 to-pink-600 text-white shadow-lg shadow-pink-500/30 border-transparent transform scale-105";
+                
+                // Inactive: Transparent background, Visible border (Rectangle)
+                let inactiveClass;
+                if (currentTheme === 'morning') {
+                    // Morning: Greyish border, transparent bg
+                    inactiveClass = "bg-transparent border-stone-300/70 opacity-60 hover:opacity-100 hover:border-rose-300 hover:bg-rose-50/30 backdrop-blur-sm";
+                } else {
+                    // Cosmic: White-ish border, transparent bg
+                    inactiveClass = "bg-transparent border-white/20 opacity-60 hover:opacity-100 hover:border-white/40 hover:bg-white/5 backdrop-blur-sm";
+                }
+
+                btn.className = baseClass + (isSelected ? activeClass : inactiveClass);
+                
+                btn.innerHTML = `
+                    <div class="relative z-10 flex flex-col h-full justify-center items-center min-h-[90px] gap-3">
+                        <div class="flex justify-center items-center gap-2">
+                           <i data-lucide="${style.icon}" class="w-4 h-4 ${isSelected ? 'opacity-80 text-white' : 'opacity-50'}"></i>
+                           <span class="font-bold text-base leading-tight">${style.name}</span>
+                        </div>
+                        <div class="flex justify-center w-full">
+                           <span class="text-[10px] font-medium tracking-wide px-2 py-0.5 rounded-full whitespace-nowrap ${isSelected ? 'text-pink-100 bg-black/10' : 'text-slate-500 bg-transparent opacity-80'}">
+                             ${style.desc}
+                           </span>
+                        </div>
+                    </div>
+                    ${isSelected ? '<div class="absolute inset-0 bg-white/20 blur-xl"></div>' : ''}
+                `;
+                
+                btn.onclick = () => {
+                    currentStyle = style;
+                    currentStyleNameSpan.textContent = style.name;
+                    renderStyles();
+                };
+                
+                stylesGrid.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+
+        let typingInterval;
+        function typeWriter(text, element, speed = 30, callback) {
+            clearInterval(typingInterval);
+            element.textContent = '';
+            let i = 0;
+            typingInterval = setInterval(() => {
+                element.textContent = text.slice(0, i + 1);
+                i++;
+                if (i === text.length) {
+                    clearInterval(typingInterval);
+                    if(callback) callback();
+                }
+            }, speed);
+        }
+
+        function typeInInput(text) {
+            userInput.value = '';
+            let i = 0;
+            userInput.setAttribute('disabled', true);
+            const timer = setInterval(() => {
+                userInput.value = text.slice(0, i + 1);
+                i++;
+                if (i === text.length) {
+                    clearInterval(timer);
+                    userInput.removeAttribute('disabled');
+                }
+            }, 40);
+        }
+
+        // --- التوليد الذكي (استراتيجية المفتاحين) ---
+        async function generateText(rewrite = false) {
+            const topic = userInput.value.trim();
+            if (!topic) return;
+
+            if (API_KEYS.length === 0) {
+                outputText.textContent = "عذراً، لا يوجد مفتاح API.";
+                outputContainer.classList.remove('hidden');
+                return;
+            }
+
+            isGenerating = true;
+            generateBtnText.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> النص يتشكّل...';
+            lucide.createIcons();
+            
+            outputContainer.classList.remove('hidden'); 
+            
+            // إضافة مؤشر التحميل النابض في وسط المستطيل
+            outputText.innerHTML = `
+                <div class="flex items-center justify-center w-full h-full py-10" style="min-height: 150px;">
+                    <span class="text-xl md:text-2xl opacity-60 animate-heartbeat font-amiri tracking-wide text-slate-500">جاري كتابة النص...</span>
+                </div>
+            `;
+            
+            try {
+                const engineId = currentStyle.realId || currentStyle.id;
+                const engine = PROMPT_ENGINES_DATA[engineId];
+                const instruction = `
+                    أنت إحسان. كاتبة مبدعة. التزمي بهذا النمط: ${JSON.stringify(engine)}.
+                    لا تخرجي عن النبرة. استخدمي المفردات المفضلة. طبق قواعد التفكير.
+                    الموضوع: ${topic}
+                `;
+
+                // 1. جلب الموديلات (نحاول مرة واحدة في البداية)
+                const models = await fetchAvailableModels();
+                let generated = "";
+                let lastErrorMsg = "";
+                let success = false;
+
+                // 2. الحلقة الكبرى: تدور على المفاتيح (الأول ثم الثاني)
+                for (const apiKey of API_KEYS) {
+                    console.log(`Trying API Key: ...${apiKey.slice(-4)}`);
+                    
+                    // 3. الحلقة الصغرى: تدور على الموديلات (1.5 Flash -> 2.0 -> Pro)
+                    for (const modelName of models) {
+                        try {
+                            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    contents: [{ parts: [{ text: instruction }] }],
+                                    generation_config: { temperature: 0.4, max_output_tokens: 8192 },
+                                    safetySettings: [
+                                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                                        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                                        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                                    ]
+                                })
+                            });
+                            
+                            if (!response.ok) {
+                                const errText = await response.json().catch(()=>({}));
+                                const msg = errText.error?.message || response.statusText;
+                                console.warn(`Failed with ${modelName} using key ...${apiKey.slice(-4)}:`, msg);
+                                lastErrorMsg = msg;
+                                
+                                // إذا الخطأ كوتة (429) أو صلاحية (403)، ننتقل للموديل التالي أو المفتاح التالي
+                                continue; 
+                            }
+
+                            const data = await response.json();
+                            if (data.candidates && data.candidates[0].content) {
+                                generated = data.candidates[0].content.parts[0].text;
+                                console.log(`Success! Model: ${modelName}, Key: ...${apiKey.slice(-4)}`);
+                                success = true;
+                                break; // خروج من حلقة الموديلات
+                            }
+                        } catch (e) { 
+                            console.warn("Network error", e); 
+                        }
+                    }
+                    if (success) break; // خروج من حلقة المفاتيح إذا نجحنا
+                }
+
+                if (!generated) {
+                    generated = "عذراً، يبدو أن جميع المفاتيح مشغولة أو مستنفذة حالياً. يرجى المحاولة لاحقاً.";
+                }
+
+                typeWriter(generated, outputText, 25, () => {
+                    outputSignature.textContent = currentStyle.name;
+                    if (!rewrite && !generated.includes("عذراً")) {
+                        historyData.unshift({ text: generated, date: new Date().toLocaleDateString('ar-MA'), style: currentStyle.name });
+                        localStorage.setItem('ihssane_history', JSON.stringify(historyData));
+                        renderHistory();
+                    }
+                });
+
+            } catch (err) {
+                outputText.textContent = "حدث خطأ غير متوقع.";
+                console.error(err);
+            } finally {
+                isGenerating = false;
+                generateBtnText.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4"></i> دع النص يتشكّل';
+                lucide.createIcons();
+            }
+        }
+
+        // دالة الحذف
+        function deleteHistoryItem(index) {
+            if (confirm('هل أنت متأكد من حذف هذا النص؟')) {
+                historyData.splice(index, 1);
+                localStorage.setItem('ihssane_history', JSON.stringify(historyData));
+                renderHistory();
+            }
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            if (historyData.length === 0) {
+                historyList.innerHTML = `
+                    <div class="flex flex-col items-center justify-center mt-32 opacity-40 space-y-4">
+                        <i data-lucide="wind" class="w-10 h-10"></i>
+                        <p>السجل فارغ كصفحة بيضاء</p>
+                    </div>`;
+            } else {
+                historyData.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = `relative p-5 rounded-xl border transition-all cursor-pointer group mb-4 ${currentTheme === 'morning' ? 'bg-white border-stone-200 hover:border-pink-300' : 'bg-white/5 border-white/10 hover:border-pink-500/50'}`;
+                    
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] opacity-50 uppercase tracking-wider font-bold text-pink-500">${item.style}</span>
+                                <span class="text-[10px] opacity-40">${item.date}</span>
+                            </div>
+                            <button class="delete-btn p-1.5 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors z-10" title="حذف">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <p class="text-sm font-amiri leading-relaxed line-clamp-3 group-hover:line-clamp-none transition-all duration-300">${item.text}</p>
+                    `;
+                    
+                    // Attach click event for delete button manually to avoid innerHTML limitations with functions
+                    const deleteBtn = div.querySelector('.delete-btn');
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteHistoryItem(index);
+                    };
+
+                    historyList.appendChild(div);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        function toggleDistractionFree() {
+            isDistractionFree = !isDistractionFree;
+            const elementsToHide = [document.getElementById('navbar'), document.getElementById('mainHeader'), document.getElementById('stylesGrid'), document.getElementById('inputContainer')];
+            const outputCard = document.getElementById('outputCard');
+
+            if (isDistractionFree) {
+                elementsToHide.forEach(el => el.classList.add('hidden-visually'));
+                outputContainer.classList.add('fixed', 'inset-0', 'z-50', 'flex', 'items-center', 'justify-center', 'p-6', 'bg-white/90', 'backdrop-blur-xl');
+                if(currentTheme !== 'morning') outputContainer.classList.replace('bg-white/90', 'bg-black/90');
+                
+                outputCard.classList.remove('shadow-2xl', 'border', 'bg-white/60');
+                outputCard.classList.add('shadow-none', 'bg-transparent', 'border-0');
+                
+                distractionToggle.innerHTML = '<i data-lucide="x" class="w-5 h-5"></i>';
+                distractionToggle.title = "خروج";
+            } else {
+                elementsToHide.forEach(el => el.classList.remove('hidden-visually'));
+                outputContainer.classList.remove('fixed', 'inset-0', 'z-50', 'flex', 'items-center', 'justify-center', 'p-6', 'bg-white/90', 'bg-black/90', 'backdrop-blur-xl');
+                
+                outputCard.classList.add('shadow-2xl', 'border', 'glass-card');
+                if(currentTheme === 'morning') outputCard.classList.add('bg-white/60');
+                outputCard.classList.remove('shadow-none', 'bg-transparent', 'border-0');
+                
+                distractionToggle.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
+                distractionToggle.title = "وضع التركيز";
+            }
+            lucide.createIcons();
+        }
+
+        // --- 5. ربط الأحداث (Event Listeners) ---
+        themeToggle.onclick = toggleTheme;
+        
+        historyBtn.onclick = () => {
+            historyModal.classList.remove('hidden');
+            setTimeout(() => {
+                historyModal.classList.remove('opacity-0');
+                historyContent.classList.remove('translate-x-full');
+            }, 10);
+            renderHistory();
+            historyBtn.classList.add('opacity-0'); 
+        };
+
+        closeHistory.onclick = () => {
+            historyModal.classList.add('opacity-0');
+            historyContent.classList.add('translate-x-full');
+            setTimeout(() => {
+                historyModal.classList.add('hidden');
+                historyBtn.classList.remove('opacity-0'); 
+            }, 300);
+        };
+
+        randomIdeaBtn.onclick = () => {
+            const engineId = currentStyle.realId || currentStyle.id;
+            const prompts = RANDOM_TOPICS[engineId] || ["فكرة..."];
+            const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+            typeInInput(randomPrompt);
+        };
+
+        generateBtn.onclick = () => generateText(false);
+        regenerateBtn.onclick = () => generateText(true);
+        
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(outputText.textContent);
+            copyBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+            lucide.createIcons();
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i>';
+                lucide.createIcons();
+            }, 2000);
+        };
+
+        distractionToggle.onclick = toggleDistractionFree;
+
+        // --- 6. التشغيل الأولي ---
+        renderStyles();
+        renderHistory();
+        
+    </script>
+</body>
+</html>
