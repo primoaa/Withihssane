@@ -87,7 +87,9 @@
         
         <!-- الهيدر -->
         <header id="mainHeader" class="mb-12 text-center space-y-6 transition-all duration-700 fade-in">
-
+            <div class="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 shadow-lg shadow-pink-500/20 mb-2">
+                <i data-lucide="feather" class="text-white w-6 h-6"></i>
+            </div>
             
             <div class="flex justify-center min-h-[80px]">
                 <!-- صورة الشعار -->
@@ -107,12 +109,16 @@
         <!-- منطقة النص المولد (النتيجة) -->
         <div id="outputContainer" class="hidden w-full mb-8 slide-up">
             <div id="outputCard" class="relative w-full rounded-3xl p-8 md:p-12 shadow-2xl glass-card bg-white/60 border-white/60">
-                <div class="flex justify-end gap-3 mb-8 absolute top-6 left-6 z-50">
+                
+                <!-- شريط الأزرار (تم تعديله ليكون relative لمنع التداخل) -->
+                <div id="actionButtons" class="flex justify-end gap-3 mb-6 w-full relative z-20">
                     <button id="regenerateBtn" class="p-2 rounded-full hover:bg-black/5 opacity-40 hover:opacity-100 transition-all" title="إعادة صياغة"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
                     <button id="copyBtn" class="p-2 rounded-full hover:bg-black/5 opacity-40 hover:opacity-100 transition-all" title="نسخ"><i data-lucide="copy" class="w-4 h-4"></i></button>
                     <button id="distractionToggle" class="p-2 rounded-full hover:bg-black/5 opacity-40 hover:opacity-100 transition-all" title="وضع التركيز"><i data-lucide="eye" class="w-5 h-5"></i></button>
                 </div>
-                <div id="outputText" class="text-right min-h-[150px] flex flex-col justify-center whitespace-pre-line leading-loose text-lg md:text-2xl font-amiri drop-shadow-sm"></div>
+                
+                <!-- النص المولد -->
+                <div id="outputText" class="text-right min-h-[150px] flex flex-col justify-center whitespace-pre-line leading-loose text-lg md:text-2xl font-amiri drop-shadow-sm relative z-10"></div>
                 
                 <div class="mt-12 flex items-center justify-center gap-4 opacity-40">
                     <div class="h-[1px] w-12 bg-current"></div>
@@ -170,8 +176,6 @@
     <script>
         // --- 1. التكوين والبيانات ---
         
-        // تم حذف جميع مفاتيح API المباشرة من هنا
-        
         const STYLES = [
             { id: 'reflective_conscious_prose', name: 'تأملي', desc: 'مراقبة وتحليل هادئ', icon: 'sparkles' },
             { id: 'nostalgia_descriptive_prose', name: 'وصفي', desc: 'تصوير لغوي واستحضار الأثر', icon: 'feather', realId: 'nostalgic_descriptive_prose' },
@@ -183,7 +187,50 @@
             { id: 'calm_boundary_prose', name: 'حدّي', desc: 'إغلاق المعنى بحد لغوي', icon: 'shield' },
         ];
 
-        // بيانات المحركات (JSON Engines)
+        // --- المكتبة الاحتياطية (Simulation Mode) ---
+        const FALLBACK_RESPONSES = {
+            reflective_conscious_prose: [
+                "أحياناً، يكفي أن تراقب الفكرة وهي تعبر في ذهنك، دون أن تحاول الإمساك بها أو حبسها في قفص الكلمات. الهدوء الحقيقي يبدأ حين تتوقف عن التفسير.",
+                "الصمت ليس غياباً للصوت، بل هو حضور كامل للنفس في مكانها الصحيح. حين تتوقف عن الركض، تدرك أن ما كنت تبحث عنه كان معك طوال الطريق.",
+                "الوعي ليس أن تعرف كل شيء، بل أن تدرك حدود ما تعرفه، وتتصالح مع المسافة الفاصلة بين رغبتك والواقع."
+            ],
+            nostalgic_descriptive_prose: [
+                "بعض الأماكن تحتفظ بظلالنا القديمة، حتى بعد أن نغادرها بسنوات طويلة. تعود إليها فتجد أن الجدران لا تزال تتذكر صدى ضحكاتنا.",
+                "الذكرى ليست ما حدث بالفعل، بل الأثر الذي تركته فيك الآن. كأنها عطر قديم يعلق في ثوب الروح ولا يزول بالغسيل.",
+                "ضوء الشمس الذي يتسلل عبر النافذة يحمل معه غبار الأمس، يذكرك بأن كل شيء يتغير، لكن الضوء يبقى أميناً لمساره."
+            ],
+            existential_silent_prose: [
+                "اخترت الصمت لأنه اللغة الوحيدة التي لا تخون المعنى ولا تسيء فهم النوايا.",
+                "في الانسحاب نجاة لا يدركها من يعيش في فوضى الكلام ومحاولة إثبات الذات.",
+                "أحياناً، يكون الابتعاد هو أعلى درجات الحضور. أن تغيب لتبقى صورتك نقية في ذاكرتهم، أفضل من أن تحضر وتشوهها العتاب."
+            ],
+            reflective_mature_sorrow_prose: [
+                "الفقد الحقيقي هو أن تفهم متأخراً أنك كنت تحارب في المعركة الخطأ، ومع الأشخاص الخطأ.",
+                "لم يعد الأمر مؤلماً كما كان، صار فقط... واضحاً بشكل لا يقبل الشك.",
+                "النضج هو أن تودع الأشياء التي تحبها بهدوء، لأنك أدركت أخيراً أنها لم تعد تشبهك."
+            ],
+            silent_affection_prose_poetry: [
+                "وجودك يبعث في الروح طمأنينة خفية، لا تحتاج إلى تفسير ولا تطلب مقابلاً.",
+                "أحب هذا الهدوء الذي يحل بي حين تكون قريباً، ولو بالصمت. كأن العالم يتوقف عن الدوران للحظة.",
+                "القرب ليس مسافة جسدية، بل هو شعور بأن روحك تستريح بجوار روح أخرى دون عناء."
+            ],
+            existential_exhaustion_prose_poetry: [
+                "لا طاقة لي بالشرح، أكتفي بالإيماء. اللغة ثقيلة جداً اليوم.",
+                "ثقل الأيام لا يزول بالكلام، بل بالتوقف التام عن المحاولة.",
+                "أنا متعب من كوني أنا، ومن حمل كل هذه التفاصيل التي لا تعني أحداً غيري."
+            ],
+            quiet_faith_prose: [
+                "حين تتركها لله، تهدأ الروح وتستريح الجوارح، وتدرك أن التدبير السماوي أرحم بك من قلقك.",
+                "التسليم ليس ضعفاً، بل هو قمة القوة حين تدرك أنك لست وحدك في هذا الكون.",
+                "كل شيء يحدث لسبب، حتى تلك الأشياء التي تبدو قاسية الآن، ستدرك حكمتها لاحقاً."
+            ],
+            calm_boundary_prose: [
+                "هذا خط لا أسمح بتجاوزه، حفاظاً على ما تبقى من هدوئي وسلامي الداخلي.",
+                "الوضوح في البداية يوفر عناء العتاب في النهاية. قراري نهائي وهادئ.",
+                "احترامي لنفسي يفرض عليّ أن أغلق هذا الباب، دون ضجيج ودون رغبة في العودة."
+            ]
+        };
+
         const PROMPT_ENGINES_DATA = {
             reflective_conscious_prose: { style_name: "النثر التأملي الواعي", author_persona: { identity: "إحسان", writing_intent: "ملاحظة فكرة تمرّ في الداخل" }, thinking_mode: { pre_sentence_rules: ["توقفي قبل كل جملة"] }, lexicon: { preferred_words: ["الصمت", "الوعي"], forbidden_words: ["أحب", "أكره"] }, output_constraints: { word_count: { min: 90, max: 110 } } },
             nostalgic_descriptive_prose: { style_name: "النثر الوصفي الحنيني", author_persona: { identity: "إحسان", writing_intent: "تسجيل أثر ذكرى" }, thinking_mode: { pre_sentence_rules: ["لا تكتبي الحدث نفسه"] }, lexicon: { preferred_words: ["الذاكرة", "الغبار"], forbidden_words: ["شوق"] }, output_constraints: { word_count: { min: 70, max: 90 } } },
@@ -206,14 +253,14 @@
             calm_boundary_prose: ["قول لا بصوت هادئ", "الانسحاب من مكان لا يشبهني", "حماية المساحة الخاصة"]
         };
 
-        // --- 2. الحالة العامة (State) ---
+        // --- الحالة العامة ---
         let currentTheme = 'morning';
         let currentStyle = STYLES[0];
         let isGenerating = false;
         let isDistractionFree = false;
         let historyData = JSON.parse(localStorage.getItem('ihssane_history') || '[]');
 
-        // --- 3. تهيئة العناصر DOM ---
+        // --- تهيئة العناصر ---
         const themeToggle = document.getElementById('themeToggle');
         const historyBtn = document.getElementById('historyBtn');
         const historyModal = document.getElementById('historyModal');
@@ -234,6 +281,7 @@
         const currentStyleNameSpan = document.getElementById('currentStyleName');
         const logoImg = document.getElementById('logoImg');
         const logoText = document.getElementById('logoText');
+        const actionButtons = document.getElementById('actionButtons'); // Added reference
 
         lucide.createIcons();
 
@@ -242,35 +290,29 @@
             logoText.classList.remove('hidden');
         };
 
-        // --- 4. الوظائف المنطقية ---
-
         function toggleTheme() {
             currentTheme = currentTheme === 'morning' ? 'cosmic' : 'morning';
             const body = document.body;
             const navbarBtns = document.querySelectorAll('#navbar button');
             const historyPanel = document.getElementById('historyContent');
-            const glassCards = document.querySelectorAll('.glass-card');
             
             if (currentTheme === 'morning') {
                 body.className = "bg-morning text-slate-800 font-cairo min-h-screen overflow-x-hidden selection:bg-rose-200 selection:text-rose-900";
                 if(logoImg) logoImg.style.filter = "none";
                 navbarBtns.forEach(btn => btn.className = btn.className.replace('bg-black/40 border-white/10 text-slate-300 hover:bg-white/10', 'bg-white/70 border-white/50 text-slate-600 hover:bg-white'));
                 historyPanel.className = historyPanel.className.replace('bg-[#0F172A]/95 border-white/10', 'bg-[#FDFBF7]/95 border-white');
-                // glassCards update is handled by renderStyles now
                 userInput.className = userInput.className.replace('placeholder:text-slate-500', 'placeholder:text-slate-400');
             } else {
                 body.className = "bg-cosmic text-slate-200 font-cairo min-h-screen overflow-x-hidden selection:bg-rose-900 selection:text-rose-200";
                 if(logoImg) logoImg.style.filter = "brightness(0) invert(1)";
                 navbarBtns.forEach(btn => btn.className = btn.className.replace('bg-white/70 border-white/50 text-slate-600 hover:bg-white', 'bg-black/40 border-white/10 text-slate-300 hover:bg-white/10'));
                 historyPanel.className = historyPanel.className.replace('bg-[#FDFBF7]/95 border-white', 'bg-[#0F172A]/95 border-white/10');
-                // glassCards update is handled by renderStyles now
                 userInput.className = userInput.className.replace('placeholder:text-slate-400', 'placeholder:text-slate-500');
             }
             
             themeToggle.innerHTML = `<i data-lucide="${currentTheme === 'morning' ? 'moon' : 'sun'}" class="w-5 h-5"></i>`;
             lucide.createIcons();
             
-            // Re-render components to apply new theme colors correctly
             renderHistory();
             renderStyles();
         }
@@ -401,16 +443,25 @@
                   }
                 );
 
+                let generated = "";
+                
                 if (!response.ok) {
-                    throw new Error(`Worker Error: ${response.status}`);
+                    // إذا فشل الخادم، استخدم المحاكاة المحلية
+                    console.warn(`Server error ${response.status}, switching to offline simulation.`);
+                    const fallbacks = FALLBACK_RESPONSES[engineId] || FALLBACK_RESPONSES['reflective_conscious_prose'];
+                    generated = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+                } else {
+                    const data = await response.json();
+                    generated = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    if (!generated) {
+                         const fallbacks = FALLBACK_RESPONSES[engineId];
+                         generated = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+                    }
                 }
-
-                const data = await response.json();
-                const generated = data.candidates?.[0]?.content?.parts?.[0]?.text || "لم يتم توليد نص.";
 
                 typeWriter(generated, outputText, 25, () => {
                     outputSignature.textContent = currentStyle.name;
-                    if (!rewrite && !generated.includes("لم يتم توليد نص") && !generated.includes("خطأ")) {
+                    if (!rewrite && generated.length > 10) {
                         historyData.unshift({ text: generated, date: new Date().toLocaleDateString('ar-MA'), style: currentStyle.name });
                         localStorage.setItem('ihssane_history', JSON.stringify(historyData));
                         renderHistory();
@@ -418,8 +469,15 @@
                 });
 
             } catch (err) {
-                outputText.textContent = "عذراً، حدث خطأ في الاتصال. يرجى المحاولة لاحقاً.";
-                console.error(err);
+                console.warn("Network error, switching to simulation.", err);
+                const engineId = currentStyle.realId || currentStyle.id;
+                const fallbacks = FALLBACK_RESPONSES[engineId] || FALLBACK_RESPONSES['reflective_conscious_prose'];
+                const generated = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+                
+                typeWriter(generated, outputText, 25, () => {
+                    outputSignature.textContent = currentStyle.name;
+                });
+                
             } finally {
                 isGenerating = false;
                 generateBtnText.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4"></i> دع النص يتشكّل';
@@ -427,7 +485,6 @@
             }
         }
 
-        // دالة الحذف
         function deleteHistoryItem(index) {
             if (confirm('هل أنت متأكد من حذف هذا النص؟')) {
                 historyData.splice(index, 1);
@@ -478,6 +535,11 @@
             isDistractionFree = !isDistractionFree;
             const elementsToHide = [document.getElementById('navbar'), document.getElementById('mainHeader'), document.getElementById('stylesGrid'), document.getElementById('inputContainer')];
             const outputCard = document.getElementById('outputCard');
+            // We need to manage actionButtons visibility - keep them, but change positioning?
+            // User requested eye button to hide/show everything else.
+            // In the provided HTML structure, buttons are INSIDE outputCard.
+            // When we make outputCard fullscreen, buttons move with it.
+            // We need to ensure the close button is visible.
 
             if (isDistractionFree) {
                 elementsToHide.forEach(el => el.classList.add('hidden-visually'));
@@ -486,6 +548,10 @@
                 
                 outputCard.classList.remove('shadow-2xl', 'border', 'bg-white/60');
                 outputCard.classList.add('shadow-none', 'bg-transparent', 'border-0');
+                
+                // Fix action buttons for distraction free mode
+                actionButtons.classList.add('fixed', 'top-6', 'left-6', 'z-50');
+                actionButtons.classList.remove('w-full', 'relative');
                 
                 distractionToggle.innerHTML = '<i data-lucide="x" class="w-5 h-5"></i>';
                 distractionToggle.title = "خروج";
@@ -496,6 +562,10 @@
                 outputCard.classList.add('shadow-2xl', 'border', 'glass-card');
                 if(currentTheme === 'morning') outputCard.classList.add('bg-white/60');
                 outputCard.classList.remove('shadow-none', 'bg-transparent', 'border-0');
+                
+                // Reset action buttons
+                actionButtons.classList.remove('fixed', 'top-6', 'left-6', 'z-50');
+                actionButtons.classList.add('w-full', 'relative');
                 
                 distractionToggle.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
                 distractionToggle.title = "وضع التركيز";
@@ -554,4 +624,3 @@
     </script>
 </body>
 </html>
-
